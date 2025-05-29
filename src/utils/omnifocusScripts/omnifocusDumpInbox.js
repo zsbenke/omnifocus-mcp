@@ -33,11 +33,35 @@
       };
   
       // Get only inbox tasks - tasks that are not in any project and are not completed/dropped
-      const inboxTasks = flattenedTasks.filter(task => 
+      const topLevelInboxTasks = flattenedTasks.filter(task => 
         task.inInbox &&
         task.taskStatus !== Task.Status.Completed && 
         task.taskStatus !== Task.Status.Dropped
       );
+      
+      // Function to recursively get all tasks (including subtasks)
+      function getAllTasksWithChildren(tasks) {
+        let allTasks = [];
+        
+        tasks.forEach(task => {
+          // Add the task itself
+          allTasks.push(task);
+          
+          // Recursively add all children
+          if (task.children && task.children.length > 0) {
+            const childTasks = task.children.filter(child => 
+              child.taskStatus !== Task.Status.Completed && 
+              child.taskStatus !== Task.Status.Dropped
+            );
+            allTasks = allTasks.concat(getAllTasksWithChildren(childTasks));
+          }
+        });
+        
+        return allTasks;
+      }
+      
+      // Get all inbox tasks including subtasks
+      const inboxTasks = getAllTasksWithChildren(topLevelInboxTasks);
       
       // Get active tags
       const activeTags = flattenedTags.filter(tag => tag.active);
@@ -62,7 +86,7 @@
         }
       });
   
-      console.log(`Processing ${inboxTasks.length} inbox tasks...`);
+      console.log(`Processing ${inboxTasks.length} inbox tasks (including subtasks)...`);
       
       // Process tasks with an optimized approach
       // Process in batches of 100 to prevent UI freezing
@@ -94,7 +118,7 @@
               projectId: null, // Inbox tasks don't have projects
               parentId: task.parent ? task.parent.id.primaryKey : null,
               childIds: task.children.map(child => child.id.primaryKey),
-              inInbox: true
+              inInbox: task.inInbox || false
             };
   
             // Add task to export

@@ -4,7 +4,8 @@ import { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol.j
 
 export const schema = z.object({
   hideCompleted: z.boolean().optional().describe("Set to false to show completed and dropped tasks (default: true)"),
-  hideRecurringDuplicates: z.boolean().optional().describe("Set to true to hide duplicate instances of recurring tasks (default: true)")
+  hideRecurringDuplicates: z.boolean().optional().describe("Set to true to hide duplicate instances of recurring tasks (default: true)"),
+  hideDeferred: z.boolean().optional().describe("Set to false to show deferred tasks (default: true)")
 });
 
 export async function handler(args: z.infer<typeof schema>, extra: RequestHandlerExtra) {
@@ -15,7 +16,8 @@ export async function handler(args: z.infer<typeof schema>, extra: RequestHandle
     // Format as compact report
     const formattedReport = formatInboxReport(inboxData, {
       hideCompleted: args.hideCompleted !== false, // Default to true
-      hideRecurringDuplicates: args.hideRecurringDuplicates !== false // Default to true
+      hideRecurringDuplicates: args.hideRecurringDuplicates !== false, // Default to true
+      hideDeferred: args.hideDeferred !== false // Default to true
     });
     
     return {
@@ -44,8 +46,8 @@ function formatCompactDate(isoDate: string | null): string {
 }
 
 // Function to format the inbox in the compact report format
-function formatInboxReport(inboxData: any, options: { hideCompleted: boolean, hideRecurringDuplicates: boolean }): string {
-  const { hideCompleted, hideRecurringDuplicates } = options;
+function formatInboxReport(inboxData: any, options: { hideCompleted: boolean, hideRecurringDuplicates: boolean, hideDeferred: boolean }): string {
+  const { hideCompleted, hideRecurringDuplicates, hideDeferred } = options;
   
   // Get current date for the header
   const today = new Date();
@@ -78,6 +80,15 @@ Status: #next #avail #block #due #over #compl #drop\n\n`;
     // Skip if it's completed or dropped and we're hiding completed items
     if (hideCompleted && (task.completed || task.taskStatus === 'Completed' || task.taskStatus === 'Dropped')) {
       return '';
+    }
+    
+    // Skip if it has a defer date and we're hiding deferred items
+    if (hideDeferred && task.deferDate) {
+      const deferDate = new Date(task.deferDate);
+      const now = new Date();
+      if (deferDate > now) {
+        return '';
+      }
     }
     
     // Flag symbol

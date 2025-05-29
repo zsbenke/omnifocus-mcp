@@ -186,6 +186,90 @@ describe('dumpInbox tool', () => {
     expect(result.success).toBe(false);
   });
 
+  it('should hide deferred tasks when hideDeferred is true', async () => {
+    const mockInboxData = {
+      exportDate: '2024-01-01T00:00:00.000Z',
+      tasks: [
+        {
+          id: 'task1',
+          name: 'Active task',
+          taskStatus: 'Available',
+          flagged: false,
+          deferDate: null,
+          parentId: null,
+          childIds: [],
+          inInbox: true
+        },
+        {
+          id: 'task2',
+          name: 'Deferred task',
+          taskStatus: 'Available',
+          flagged: false,
+          deferDate: '2099-01-01T00:00:00.000Z', // Future date
+          parentId: null,
+          childIds: [],
+          inInbox: true
+        }
+      ],
+      tags: {}
+    };
+
+    mockDumpInbox.mockResolvedValue(mockInboxData);
+
+    const args = {
+      hideCompleted: true,
+      hideRecurringDuplicates: true,
+      hideDeferred: true
+    };
+
+    const result = await handler(args, {} as any);
+
+    expect(result.content[0].text).toContain('Active task');
+    expect(result.content[0].text).not.toContain('Deferred task');
+  });
+
+  it('should show deferred tasks when hideDeferred is false', async () => {
+    const mockInboxData = {
+      exportDate: '2024-01-01T00:00:00.000Z',
+      tasks: [
+        {
+          id: 'task1',
+          name: 'Active task',
+          taskStatus: 'Available',
+          flagged: false,
+          deferDate: null,
+          parentId: null,
+          childIds: [],
+          inInbox: true
+        },
+        {
+          id: 'task2',
+          name: 'Deferred task',
+          taskStatus: 'Available',
+          flagged: false,
+          deferDate: '2099-01-01T00:00:00.000Z', // Future date
+          parentId: null,
+          childIds: [],
+          inInbox: true
+        }
+      ],
+      tags: {}
+    };
+
+    mockDumpInbox.mockResolvedValue(mockInboxData);
+
+    const args = {
+      hideCompleted: true,
+      hideRecurringDuplicates: true,
+      hideDeferred: false
+    };
+
+    const result = await handler(args, {} as any);
+
+    expect(result.content[0].text).toContain('Active task');
+    expect(result.content[0].text).toContain('Deferred task');
+  });
+
   it('should handle inbox dump error', async () => {
     mockDumpInbox.mockRejectedValue(new Error('OmniFocus not available'));
 
