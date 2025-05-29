@@ -74,7 +74,17 @@ export async function executeOmniFocusScript(scriptPath: string, args?: any): Pr
     }
     
     // Read the script file
-    const scriptContent = readFileSync(actualPath, 'utf8');
+    let scriptContent = readFileSync(actualPath, 'utf8');
+    
+    // If args are provided, substitute parameters in the script
+    if (args) {
+      for (const [key, value] of Object.entries(args)) {
+        // Replace parameter placeholders with actual values
+        const placeholder = key;
+        const replacement = typeof value === 'string' ? `"${value}"` : String(value);
+        scriptContent = scriptContent.replace(new RegExp(placeholder, 'g'), replacement);
+      }
+    }
     
     // Create a temporary file for our JXA wrapper script
     const tempFile = join(tmpdir(), `jxa_wrapper_${Date.now()}.js`);

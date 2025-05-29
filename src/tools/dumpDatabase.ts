@@ -66,11 +66,22 @@ interface OmnifocusDumpData {
 }
 
 // Main function to dump the database
-export async function dumpDatabase(): Promise<OmnifocusDatabase> {
+export async function dumpDatabase(folderId?: string): Promise<OmnifocusDatabase> {
   
   try {
+    // Choose script based on whether folder is specified
+    let scriptName: string;
+    let scriptArgs: any = null;
+    
+    if (folderId) {
+      scriptName = '@omnifocusDumpFolder.js';
+      scriptArgs = { __folderIdParam__: folderId };
+    } else {
+      scriptName = '@omnifocusDump.js';
+    }
+    
     // Execute the OmniFocus script
-    const data = await executeOmniFocusScript('@omnifocusDump.js') as OmnifocusDumpData;
+    const data = await executeOmniFocusScript(scriptName, scriptArgs) as OmnifocusDumpData;
     // wait 1 second
     await new Promise(resolve => setTimeout(resolve, 1000));
  

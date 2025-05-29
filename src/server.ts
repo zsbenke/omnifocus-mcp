@@ -12,6 +12,7 @@ import * as editItemTool from './tools/definitions/editItem.js';
 import * as batchAddItemsTool from './tools/definitions/batchAddItems.js';
 import * as batchRemoveItemsTool from './tools/definitions/batchRemoveItems.js';
 import * as getTaskDetailsTool from './tools/definitions/getTaskDetails.js';
+import * as listFoldersTool from './tools/definitions/listFolders.js';
 
 // Create an MCP server
 const server = new McpServer({
@@ -74,6 +75,13 @@ server.tool(
   "Remove multiple tasks or projects from OmniFocus in a single operation",
   batchRemoveItemsTool.schema.shape,
   batchRemoveItemsTool.handler
+);
+
+server.tool(
+  "list_folders",
+  "List all folders in OmniFocus with their hierarchy and statistics",
+  listFoldersTool.schema.shape,
+  listFoldersTool.handler
 );
 
 // Start the MCP server
