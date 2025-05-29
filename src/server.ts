@@ -5,6 +5,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 
 // Import tool definitions
 import * as dumpDatabaseTool from './tools/definitions/dumpDatabase.js';
+import * as dumpInboxTool from './tools/definitions/dumpInbox.js';
 import * as addOmniFocusTaskTool from './tools/definitions/addOmniFocusTask.js';
 import * as addProjectTool from './tools/definitions/addProject.js';
 import * as removeItemTool from './tools/definitions/removeItem.js';
@@ -26,6 +27,13 @@ server.tool(
   "Gets the current state of your OmniFocus database",
   dumpDatabaseTool.schema.shape,
   dumpDatabaseTool.handler
+);
+
+server.tool(
+  "dump_inbox",
+  "Gets all tasks from your OmniFocus inbox",
+  dumpInboxTool.schema.shape,
+  dumpInboxTool.handler
 );
 
 server.tool(
