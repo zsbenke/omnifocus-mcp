@@ -5,12 +5,12 @@ import { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol.j
 export const schema = z.object({
   hideCompleted: z.boolean().optional().describe("Set to false to show completed and dropped tasks (default: true)"),
   hideRecurringDuplicates: z.boolean().optional().describe("Set to true to hide duplicate instances of recurring tasks (default: true)"),
-  folderId: z.string().optional().describe("Optional folder ID to dump only that folder and its subfolders. Use list_folders to get folder IDs. If not provided, dumps the entire database.")
+  folderId: z.string().describe("Folder ID to dump that folder and its subfolders. Use list_folders to get folder IDs.")
 });
 
 export async function handler(args: z.infer<typeof schema>, extra: RequestHandlerExtra) {
   try {
-    // Get raw database - pass folderId if provided
+    // Get raw database - pass folderId
     const database = await dumpDatabase(args.folderId);
     
     // Format as compact report

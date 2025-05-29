@@ -15,7 +15,7 @@ describe('dumpDatabase tool with folder support', () => {
     jest.clearAllMocks();
   });
 
-  it('should call dumpDatabase without folderId when not provided', async () => {
+  it('should call dumpDatabase with required folderId', async () => {
     const mockDatabase = {
       exportDate: '2024-01-01T00:00:00.000Z',
       tasks: [],
@@ -28,12 +28,13 @@ describe('dumpDatabase tool with folder support', () => {
 
     const args = {
       hideCompleted: true,
-      hideRecurringDuplicates: true
+      hideRecurringDuplicates: true,
+      folderId: 'folder123'
     };
 
     await handler(args, {} as any);
 
-    expect(mockDumpDatabase).toHaveBeenCalledWith(undefined);
+    expect(mockDumpDatabase).toHaveBeenCalledWith('folder123');
   });
 
   it('should call dumpDatabase with folderId when provided', async () => {
@@ -73,18 +74,14 @@ describe('dumpDatabase tool with folder support', () => {
     }
   });
 
-  it('should validate schema correctly without folderId parameter', () => {
-    const validArgs = {
+  it('should reject schema without folderId parameter', () => {
+    const invalidArgs = {
       hideCompleted: true,
       hideRecurringDuplicates: true
     };
 
-    const result = schema.safeParse(validArgs);
-    expect(result.success).toBe(true);
-    
-    if (result.success) {
-      expect(result.data.folderId).toBeUndefined();
-    }
+    const result = schema.safeParse(invalidArgs);
+    expect(result.success).toBe(false);
   });
 
   it('should reject invalid folderId parameter', () => {
