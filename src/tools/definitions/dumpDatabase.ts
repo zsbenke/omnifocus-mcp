@@ -234,9 +234,8 @@ Status: #next #avail #block #due #over #compl #drop\n\n`;
         break;
     }
 
-    // Add task ID (shortened to last 8 chars for readability)
-    const shortId = task.id.length > 8 ? `...${task.id.slice(-8)}` : task.id;
-    const taskId = ` [${shortId}]`;
+    // Add task ID
+    const taskId = ` [${task.id}]`;
 
     let taskOutput = `${indent}• ${flagSymbol}${task.name}${taskId}${dateInfo}${durationStr}${tagsStr}${statusStr}\n`;
 
