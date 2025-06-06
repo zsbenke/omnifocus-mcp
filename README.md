@@ -7,7 +7,7 @@ A Model Context Protocol (MCP) server that integrates with OmniFocus to enable C
 ## 🌟 Overview
 
 This MCP server creates a bridge between AI assistants (like Claude) and your OmniFocus task management system. It gives AI models the ability to view, create, edit, and remove tasks and projects in your OmniFocus database through natural language conversations.
-Some ways you could use it: 
+Some ways you could use it:
 
 - Translate the PDF of a syllabus into a fully specificed project with tasks, tags, defer dates, and due dates.
 - Turn a meeting transcript into a list of actions
@@ -87,7 +87,7 @@ With ID visibility in `dump_database` and the new `get_task_details` tool, you c
 
 Get a summary of your current tasks and manage them conversationally:
 
-> "Show me all my flagged tasks due this week that don't mention "fish". 
+> "Show me all my flagged tasks due this week that don't mention "fish".
 
 ### Process Transcripts or PDFs
 
@@ -107,7 +107,27 @@ Manage multiple items efficiently:
 The server currently provides these tools:
 
 ### `dump_database`
-Gets the current state of your OmniFocus database. Now includes task and project IDs in the output for easy reference when creating nested tasks or relationships.
+Gets the current state of your OmniFocus database or a specific record (folder, project, or task) and its contents.
+
+Parameters:
+- `recordId`: (Required) The ID of a folder, project, or task to use as the root for the dump tree
+  - For folders: Shows the folder and all its subfolders, projects, and tasks
+  - For projects: Shows the project and all its tasks
+  - For tasks: Shows the task and all its subtasks
+- `hideCompleted`: (Optional) Set to false to show completed and dropped tasks (default: true)
+- `hideRecurringDuplicates`: (Optional) Set to true to hide duplicate instances of recurring tasks (default: true)
+
+Example usage:
+```
+// Dump a specific folder and all its contents
+dump_database({ recordId: "oFmFgRbvabZ" })
+
+// Dump a specific project
+dump_database({ recordId: "lTjzfk3zqek" })
+
+// Dump a task and its subtasks
+dump_database({ recordId: "bOVm4rhZEpw", hideCompleted: false })
+```
 
 ### `get_task_details`
 Get detailed information about a specific task by ID or name.

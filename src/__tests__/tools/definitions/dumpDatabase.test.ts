@@ -10,12 +10,12 @@ jest.unstable_mockModule('../../../tools/dumpDatabase.js', () => ({
 // Import after mocking
 const { handler, schema } = await import('../../../tools/definitions/dumpDatabase.js');
 
-describe('dumpDatabase tool with folder support', () => {
+describe('dumpDatabase tool with record support', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should call dumpDatabase with required folderId', async () => {
+  it('should call dumpDatabase with required recordId', async () => {
     const mockDatabase = {
       exportDate: '2024-01-01T00:00:00.000Z',
       tasks: [],
@@ -29,7 +29,7 @@ describe('dumpDatabase tool with folder support', () => {
     const args = {
       hideCompleted: true,
       hideRecurringDuplicates: true,
-      folderId: 'folder123'
+      recordId: 'folder123'
     };
 
     await handler(args, {} as any);
@@ -37,7 +37,7 @@ describe('dumpDatabase tool with folder support', () => {
     expect(mockDumpDatabase).toHaveBeenCalledWith('folder123');
   });
 
-  it('should call dumpDatabase with folderId when provided', async () => {
+  it('should call dumpDatabase with recordId when provided', async () => {
     const mockDatabase = {
       exportDate: '2024-01-01T00:00:00.000Z',
       tasks: [],
@@ -51,30 +51,60 @@ describe('dumpDatabase tool with folder support', () => {
     const args = {
       hideCompleted: true,
       hideRecurringDuplicates: true,
-      folderId: 'folder123'
+      recordId: 'task123'
     };
 
     await handler(args, {} as any);
 
-    expect(mockDumpDatabase).toHaveBeenCalledWith('folder123');
+    expect(mockDumpDatabase).toHaveBeenCalledWith('task123');
   });
 
-  it('should validate schema correctly with folderId parameter', () => {
+  it('should validate schema correctly with recordId parameter for folder', () => {
     const validArgs = {
       hideCompleted: true,
       hideRecurringDuplicates: true,
-      folderId: 'folder123'
+      recordId: 'oFmFgRbvabZ'
     };
 
     const result = schema.safeParse(validArgs);
     expect(result.success).toBe(true);
-    
+
     if (result.success) {
-      expect(result.data.folderId).toBe('folder123');
+      expect(result.data.recordId).toBe('oFmFgRbvabZ');
     }
   });
 
-  it('should reject schema without folderId parameter', () => {
+  it('should validate schema correctly with recordId parameter for project', () => {
+    const validArgs = {
+      hideCompleted: true,
+      hideRecurringDuplicates: true,
+      recordId: 'lTjzfk3zqek'
+    };
+
+    const result = schema.safeParse(validArgs);
+    expect(result.success).toBe(true);
+
+    if (result.success) {
+      expect(result.data.recordId).toBe('lTjzfk3zqek');
+    }
+  });
+
+  it('should validate schema correctly with recordId parameter for task', () => {
+    const validArgs = {
+      hideCompleted: true,
+      hideRecurringDuplicates: true,
+      recordId: 'bOVm4rhZEpw'
+    };
+
+    const result = schema.safeParse(validArgs);
+    expect(result.success).toBe(true);
+
+    if (result.success) {
+      expect(result.data.recordId).toBe('bOVm4rhZEpw');
+    }
+  });
+
+  it('should reject schema without recordId parameter', () => {
     const invalidArgs = {
       hideCompleted: true,
       hideRecurringDuplicates: true
@@ -84,11 +114,11 @@ describe('dumpDatabase tool with folder support', () => {
     expect(result.success).toBe(false);
   });
 
-  it('should reject invalid folderId parameter', () => {
+  it('should reject invalid recordId parameter', () => {
     const invalidArgs = {
       hideCompleted: true,
       hideRecurringDuplicates: true,
-      folderId: 123 // Should be string
+      recordId: 123 // Should be string
     };
 
     const result = schema.safeParse(invalidArgs);
@@ -101,7 +131,7 @@ describe('dumpDatabase tool with folder support', () => {
     const args = {
       hideCompleted: true,
       hideRecurringDuplicates: true,
-      folderId: 'folder123'
+      recordId: 'folder123'
     };
 
     const result = await handler(args, {} as any);

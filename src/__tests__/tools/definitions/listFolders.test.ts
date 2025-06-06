@@ -48,7 +48,7 @@ describe('listFolders tool', () => {
     expect(result.content).toHaveLength(1);
     expect(result.content[0].type).toBe('text');
     const text = result.content[0].text;
-    
+
     expect(text).toContain('# OmniFocus Folders');
     expect(text).toContain('Total folders: 2');
     expect(text).toContain('📁 Work');
@@ -58,6 +58,7 @@ describe('listFolders tool', () => {
     expect(text).toContain('[folder1]');
     expect(text).toContain('[folder2]');
     expect(text).toContain('How to use folders with dump_database');
+    expect(text).toContain('Use dump_database with record_id parameter');
   });
 
   it('should handle empty folder list', async () => {
@@ -74,7 +75,7 @@ describe('listFolders tool', () => {
     expect(result.content).toHaveLength(1);
     expect(result.content[0].type).toBe('text');
     const text = result.content[0].text;
-    
+
     expect(text).toContain('# OmniFocus Folders');
     expect(text).toContain('Total folders: 0');
     expect(text).toContain('No folders found in OmniFocus');
@@ -139,7 +140,7 @@ describe('listFolders tool', () => {
 
     expect(result.content).toHaveLength(1);
     const text = result.content[0].text;
-    
+
     expect(text).toContain('📁 Work');
     expect(text).toContain('  📁 Development');
     expect(text).toContain('[parent1]');

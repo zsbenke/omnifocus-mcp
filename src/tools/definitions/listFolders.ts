@@ -7,7 +7,7 @@ export const schema = z.object({});
 export async function handler(args: z.infer<typeof schema>, extra: RequestHandlerExtra) {
   try {
     const result = await listFolders();
-    
+
     if (!result.success || !result.folders) {
       return {
         content: [{
@@ -17,48 +17,50 @@ export async function handler(args: z.infer<typeof schema>, extra: RequestHandle
         isError: true
       };
     }
-    
+
     // Format the folder list
     let output = `# OmniFocus Folders\n\n`;
     output += `Total folders: ${result.totalCount}\n\n`;
-    
+
     if (result.folders.length === 0) {
       output += `No folders found in OmniFocus.\n`;
     } else {
       // Group folders by hierarchy
       const rootFolders = result.folders.filter(f => !f.parentId);
-      
+
       function formatFolder(folder: any, allFolders: any[], indent: string = ''): string {
         let text = `${indent}📁 ${folder.name}`;
-        
+
         // Add folder statistics
         if (folder.projectCount > 0 || folder.taskCount > 0) {
           text += ` (${folder.projectCount} projects, ${folder.taskCount} tasks)`;
         }
-        
+
         text += ` [${folder.id}]\n`;
-        
+
         // Find and format subfolders
         const subfolders = allFolders.filter(f => f.parentId === folder.id);
         for (const subfolder of subfolders) {
           text += formatFolder(subfolder, allFolders, indent + '  ');
         }
-        
+
         return text;
       }
-      
+
       // Format root folders and their children
       for (const folder of rootFolders) {
         output += formatFolder(folder, result.folders);
       }
-      
+
       output += `\n## How to use folders with dump_database:\n`;
       output += `1. Use dump_database without parameters to dump everything (may hit token limits)\n`;
-      output += `2. Use dump_database with folder_id parameter to dump a specific folder:\n`;
-      output += `   Example: dump_database(folder_id="abc123")\n`;
-      output += `3. The folder dump will include all projects, tasks, and subfolders within that folder\n`;
+      output += `2. Use dump_database with record_id parameter to dump a specific record (folder, project, or task):\n`;
+      output += `   Example: dump_database(record_id="abc123")\n`;
+      output += `   - For folders: Shows the folder and all its contents\n`;
+      output += `   - For projects: Shows the project and all its tasks\n`;
+      output += `   - For tasks: Shows the task and all its subtasks\n`;
     }
-    
+
     return {
       content: [{
         type: "text" as const,

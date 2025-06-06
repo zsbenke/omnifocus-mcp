@@ -66,25 +66,25 @@ interface OmnifocusDumpData {
 }
 
 // Main function to dump the database
-export async function dumpDatabase(folderId?: string): Promise<OmnifocusDatabase> {
-  
+export async function dumpDatabase(recordId?: string): Promise<OmnifocusDatabase> {
+
   try {
-    // Choose script based on whether folder is specified
+    // Choose script based on whether record is specified
     let scriptName: string;
     let scriptArgs: any = null;
-    
-    if (folderId) {
-      scriptName = '@omnifocusDumpFolder.js';
-      scriptArgs = { __folderIdParam__: folderId };
+
+    if (recordId) {
+      scriptName = '@omnifocusDumpRecord.js';
+      scriptArgs = { __recordIdParam__: recordId };
     } else {
       scriptName = '@omnifocusDump.js';
     }
-    
+
     // Execute the OmniFocus script
     const data = await executeOmniFocusScript(scriptName, scriptArgs) as OmnifocusDumpData;
     // wait 1 second
     await new Promise(resolve => setTimeout(resolve, 1000));
- 
+
     // Create an empty database if no data returned
     if (!data) {
       return {
@@ -95,7 +95,7 @@ export async function dumpDatabase(folderId?: string): Promise<OmnifocusDatabase
         tags: {}
       };
     }
-    
+
     // Initialize the database object
     const database: OmnifocusDatabase = {
       exportDate: data.exportDate,
@@ -104,7 +104,7 @@ export async function dumpDatabase(folderId?: string): Promise<OmnifocusDatabase
       folders: {},
       tags: {}
     };
-    
+
     // Process tasks
     if (data.tasks && Array.isArray(data.tasks)) {
       // Convert the tasks to our OmnifocusTask format
@@ -113,7 +113,7 @@ export async function dumpDatabase(folderId?: string): Promise<OmnifocusDatabase
         const tagNames = (task.tags || []).map(tagId => {
           return data.tags[tagId]?.name || 'Unknown Tag';
         });
-        
+
         return {
           id: String(task.id),
           name: String(task.name),
@@ -137,7 +137,7 @@ export async function dumpDatabase(folderId?: string): Promise<OmnifocusDatabase
           sequential: Boolean(task.sequential),
           completedByChildren: Boolean(task.completedByChildren),
           isRepeating: false, // Not available in the new format
-          repetitionMethod: null, // Not available in the new format 
+          repetitionMethod: null, // Not available in the new format
           repetitionRule: null, // Not available in the new format
           attachments: [], // Default empty array
           linkedFileURLs: [], // Default empty array
@@ -146,7 +146,7 @@ export async function dumpDatabase(folderId?: string): Promise<OmnifocusDatabase
         };
       });
     }
-    
+
     // Process projects
     if (data.projects) {
       for (const [id, project] of Object.entries(data.projects)) {
@@ -169,7 +169,7 @@ export async function dumpDatabase(folderId?: string): Promise<OmnifocusDatabase
         };
       }
     }
-    
+
     // Process folders
     if (data.folders) {
       for (const [id, folder] of Object.entries(data.folders)) {
@@ -183,7 +183,7 @@ export async function dumpDatabase(folderId?: string): Promise<OmnifocusDatabase
         };
       }
     }
-    
+
     // Process tags
     if (data.tags) {
       for (const [id, tag] of Object.entries(data.tags)) {
@@ -197,7 +197,7 @@ export async function dumpDatabase(folderId?: string): Promise<OmnifocusDatabase
         };
       }
     }
-    
+
     return database;
   } catch (error) {
     console.error("Error in dumpDatabase:", error);
