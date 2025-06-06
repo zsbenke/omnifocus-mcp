@@ -150,7 +150,7 @@ Status: #next #avail #block #due #over #compl #drop\n\n`;
 
     // Process tasks in this project
     const projectTasks = database.tasks.filter((task: any) =>
-      task.projectId === project.id && !task.parentId
+      task.projectId === project.id && (!task.parentId || task.parentId === project.id)
     );
 
     if (projectTasks.length > 0) {
@@ -262,6 +262,29 @@ Status: #next #avail #block #due #over #compl #drop\n\n`;
 
   for (const project of rootProjects) {
     output += processProject(project, 0);
+  }
+
+  // Special handling: If we have tasks but no output yet (e.g., when dumping a specific task)
+  // This happens when dumping a non-root task directly
+  if (database.tasks.length > 0 && output.indexOf('•') === -1) {
+    // Find tasks that don't have a parent in the current task list
+    const taskIds = new Set(database.tasks.map((t: any) => t.id));
+    const projectIds = new Set(Object.keys(database.projects));
+
+    const rootTasksInDump = database.tasks.filter((task: any) => {
+      // A task is considered root in this dump if:
+      // 1. It has no parent, OR
+      // 2. Its parent is not in the current task list (might be a project or a task outside the dump), OR
+      // 3. Its parent is a project (parentId matches a project ID)
+      return !task.parentId ||
+             !taskIds.has(task.parentId) ||
+             projectIds.has(task.parentId);
+    });
+
+    // Process these tasks directly
+    for (const task of rootTasksInDump) {
+      output += processTask(task, 0);
+    }
   }
 
   return output;
