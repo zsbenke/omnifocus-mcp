@@ -22,6 +22,7 @@ export interface EditItemParams {
   
   // Task-specific fields
   newStatus?: TaskStatus;       // New status for tasks (incomplete, completed, dropped)
+  newProjectId?: string;        // New project ID to move the task to
   addTags?: string[];           // Tags to add to the task
   removeTags?: string[];        // Tags to remove from the task
   replaceTags?: string[];       // Tags to replace all existing tags with
@@ -184,6 +185,35 @@ function generateAppleScript(params: EditItemParams): string {
       }
     }
     
+    // Move task to a new project
+    if (params.newProjectId !== undefined) {
+      const projectId = params.newProjectId.replace(/['"\\]/g, '\\$&');
+      if (projectId === "") {
+        script += `
+          -- Clear project assignment (move to inbox)
+          set assigned container of foundItem to missing value
+          set end of changedProperties to "moved to inbox"
+`;
+      } else {
+        script += `
+          -- Move task to new project
+          set destProject to missing value
+          try
+            set destProject to first flattened project where id = "${projectId}"
+          end try
+          
+          if destProject is not missing value then
+            -- Set task assigned container to project
+            set assigned container of foundItem to destProject
+            set end of changedProperties to "assigned to project"
+          else
+            -- Project not found
+            return "{\\\"success\\\":false,\\\"error\\\":\\\"Project not found\\\"}"
+          end if
+`;
+      }
+    }
+    
     // Handle tag operations
     if (params.replaceTags && params.replaceTags.length > 0) {
       const tagsList = params.replaceTags.map(tag => `"${tag.replace(/['"\\]/g, '\\$&')}"`).join(", ");
@@ -339,7 +369,7 @@ export async function editItem(params: EditItemParams): Promise<{
     console.error(`Item type: ${params.itemType}, ID: ${params.id || 'not provided'}, Name: ${params.name || 'not provided'}`);
     
     // Log a preview of the script for debugging (first few lines)
-    const scriptPreview = script.split('\n').slice(0, 10).join('\n') + '\n...';
+    const scriptPreview = script.split('\n').slice(0, 15).join('\n') + '\n...';
     console.error("AppleScript preview:\n", scriptPreview);
     
     // Execute AppleScript directly
