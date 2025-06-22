@@ -6,6 +6,7 @@ import { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol.j
 export const schema = z.object({
   hideCompleted: z.boolean().optional().describe("Set to false to show completed and dropped tasks (default: true)"),
   hideRecurringDuplicates: z.boolean().optional().describe("Set to true to hide duplicate instances of recurring tasks (default: true)"),
+  projectsOnly: z.boolean().optional().describe("Set to true to export only projects without their tasks or subtasks (default: false)"),
   recordId: z.string().describe("Record ID (folder, project, or task) to use as root for the dump tree. Use list_folders to get folder IDs or get_task_details to find task/project IDs."),
   filePath: z.string().optional().describe("Optional file path to save the database dump output (should be a .txt file, e.g., /tmp/omnifocus-dump.txt)")
 });
@@ -18,7 +19,8 @@ export async function handler(args: z.infer<typeof schema>, extra: RequestHandle
     // Format as compact report
     const formattedReport = formatCompactReport(database, {
       hideCompleted: args.hideCompleted !== false, // Default to true
-      hideRecurringDuplicates: args.hideRecurringDuplicates !== false // Default to true
+      hideRecurringDuplicates: args.hideRecurringDuplicates !== false, // Default to true
+      projectsOnly: args.projectsOnly === true // Default to false
     });
 
     // If filePath is provided, save to file
@@ -68,8 +70,8 @@ function formatCompactDate(isoDate: string | null): string {
 }
 
 // Function to format the database in the compact report format
-function formatCompactReport(database: any, options: { hideCompleted: boolean, hideRecurringDuplicates: boolean }): string {
-  const { hideCompleted, hideRecurringDuplicates } = options;
+function formatCompactReport(database: any, options: { hideCompleted: boolean, hideRecurringDuplicates: boolean, projectsOnly: boolean }): string {
+  const { hideCompleted, hideRecurringDuplicates, projectsOnly } = options;
 
   // Get current date for the header
   const today = new Date();
@@ -169,14 +171,17 @@ Status: #next #avail #block #due #over #compl #drop\n\n`;
 
     let projectOutput = `${indent}P: ${project.name}${flaggedSymbol}${projectId}${statusInfo}\n`;
 
-    // Process tasks in this project
-    const projectTasks = database.tasks.filter((task: any) =>
-      task.projectId === project.id && (!task.parentId || task.parentId === project.id)
-    );
+    // Only process tasks if projectsOnly is false
+    if (!projectsOnly) {
+      // Process tasks in this project
+      const projectTasks = database.tasks.filter((task: any) =>
+        task.projectId === project.id && (!task.parentId || task.parentId === project.id)
+      );
 
-    if (projectTasks.length > 0) {
-      for (const task of projectTasks) {
-        projectOutput += processTask(task, level + 1);
+      if (projectTasks.length > 0) {
+        for (const task of projectTasks) {
+          projectOutput += processTask(task, level + 1);
+        }
       }
     }
 
@@ -281,7 +286,8 @@ Status: #next #avail #block #due #over #compl #drop\n\n`;
 
   // Special handling: If we have tasks but no output yet (e.g., when dumping a specific task)
   // This happens when dumping a non-root task directly
-  if (database.tasks.length > 0 && output.indexOf('•') === -1) {
+  // Only process tasks if projectsOnly is false
+  if (!projectsOnly && database.tasks.length > 0 && output.indexOf('•') === -1) {
     // Find tasks that don't have a parent in the current task list
     const taskIds = new Set(database.tasks.map((t: any) => t.id));
     const projectIds = new Set(Object.keys(database.projects));
