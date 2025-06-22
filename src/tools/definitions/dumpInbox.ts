@@ -1,11 +1,13 @@
 import { z } from 'zod';
+import { writeFileSync } from 'fs';
 import { dumpInbox } from '../primitives/dumpInbox.js';
 import { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol.js';
 
 export const schema = z.object({
   hideCompleted: z.boolean().optional().describe("Set to false to show completed and dropped tasks (default: true)"),
   hideRecurringDuplicates: z.boolean().optional().describe("Set to true to hide duplicate instances of recurring tasks (default: true)"),
-  hideDeferred: z.boolean().optional().describe("Set to false to show deferred tasks (default: true)")
+  hideDeferred: z.boolean().optional().describe("Set to false to show deferred tasks (default: true)"),
+  filePath: z.string().optional().describe("Optional file path to save the inbox dump output (should be a .txt file, e.g., /tmp/omnifocus-inbox.txt)")
 });
 
 export async function handler(args: z.infer<typeof schema>, extra: RequestHandlerExtra) {
@@ -19,6 +21,27 @@ export async function handler(args: z.infer<typeof schema>, extra: RequestHandle
       hideRecurringDuplicates: args.hideRecurringDuplicates !== false, // Default to true
       hideDeferred: args.hideDeferred !== false // Default to true
     });
+
+    // If filePath is provided, save to file
+    if (args.filePath) {
+      try {
+        writeFileSync(args.filePath, formattedReport, 'utf8');
+        return {
+          content: [{
+            type: "text" as const,
+            text: `Inbox dump successfully saved to: ${args.filePath}`
+          }]
+        };
+      } catch (writeError: unknown) {
+        return {
+          content: [{
+            type: "text" as const,
+            text: `Error writing to file ${args.filePath}: ${writeError instanceof Error ? writeError.message : 'Unknown error'}`
+          }],
+          isError: true
+        };
+      }
+    }
 
     return {
       content: [{
