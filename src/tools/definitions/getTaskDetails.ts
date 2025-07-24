@@ -34,6 +34,9 @@ export async function handler(args: z.infer<typeof schema>, extra: RequestHandle
       if (task.deferDate) {
         output += `**Defer Date:** ${new Date(task.deferDate).toLocaleDateString()}\n`;
       }
+      if (task.creationDate) {
+        output += `**Created:** ${new Date(task.creationDate).toLocaleDateString()}\n`;
+      }
       if (task.completionDate) {
         output += `**Completed:** ${new Date(task.completionDate).toLocaleDateString()}\n`;
       }

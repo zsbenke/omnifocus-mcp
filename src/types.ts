@@ -14,6 +14,7 @@ export interface OmnifocusTask {
     // Dates
     dueDate: string | null;
     deferDate: string | null;
+    creationDate: string | null;
     estimatedMinutes: number | null;
     
     // Organization
@@ -63,6 +64,7 @@ export interface OmnifocusProject {
   effectiveDeferDate: string | null;
   dueDate: string | null;
   deferDate: string | null;
+  creationDate: string | null;
   completedByChildren: boolean;
   containsSingletonActions: boolean;
   note: string;

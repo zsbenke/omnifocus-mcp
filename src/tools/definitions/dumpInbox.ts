@@ -125,6 +125,10 @@ Status: #next #avail #block #due #over #compl #drop\n\n`;
       const deferDateStr = formatCompactDate(task.deferDate);
       dateInfo += ` [defer:${deferDateStr}]`;
     }
+    if (task.creationDate) {
+      const createdDateStr = formatCompactDate(task.creationDate);
+      dateInfo += ` [created:${createdDateStr}]`;
+    }
 
     // Format duration
     let durationStr = '';

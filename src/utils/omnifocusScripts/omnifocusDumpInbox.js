@@ -108,6 +108,7 @@
               flagged: task.flagged,
               dueDate: formatDate(task.dueDate),
               deferDate: formatDate(task.deferDate),
+              creationDate: formatDate(task.added),
               effectiveDueDate: formatDate(task.effectiveDueDate),
               effectiveDeferDate: formatDate(task.effectiveDeferDate),
               estimatedMinutes: task.estimatedMinutes,
