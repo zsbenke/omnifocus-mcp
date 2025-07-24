@@ -109,6 +109,7 @@
               dueDate: formatDate(task.dueDate),
               deferDate: formatDate(task.deferDate),
               creationDate: formatDate(task.added),
+              modificationDate: formatDate(task.modified),
               effectiveDueDate: formatDate(task.effectiveDueDate),
               effectiveDeferDate: formatDate(task.effectiveDeferDate),
               estimatedMinutes: task.estimatedMinutes,

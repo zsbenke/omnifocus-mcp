@@ -82,7 +82,7 @@ function formatCompactReport(database: any, options: { hideCompleted: boolean, h
   // Add legend
   output += `FORMAT LEGEND:
 F: Folder | P: Project | •: Task | 🚩: Flagged
-IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [created:M/D] | Duration: (30m) or (2h) | Tags: <tag1,tag2>
+IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [created:M/D] [modified:M/D] | Duration: (30m) or (2h) | Tags: <tag1,tag2>
 Status: #next #avail #block #due #over #compl #drop\n\n`;
 
   // Map of folder IDs to folder objects for quick lookup
@@ -169,6 +169,12 @@ Status: #next #avail #block #due #over #compl #drop\n\n`;
       statusInfo += ` [created:${createdDateStr}]`;
     }
 
+    // Add modification date if present
+    if (project.modificationDate) {
+      const modifiedDateStr = formatCompactDate(project.modificationDate);
+      statusInfo += ` [modified:${modifiedDateStr}]`;
+    }
+
     // Add flag if present
     const flaggedSymbol = project.flagged ? ' 🚩' : '';
 
@@ -219,6 +225,10 @@ Status: #next #avail #block #due #over #compl #drop\n\n`;
     if (task.creationDate) {
       const createdDateStr = formatCompactDate(task.creationDate);
       dateInfo += ` [created:${createdDateStr}]`;
+    }
+    if (task.modificationDate) {
+      const modifiedDateStr = formatCompactDate(task.modificationDate);
+      dateInfo += ` [modified:${modifiedDateStr}]`;
     }
 
     // Format duration

@@ -12,6 +12,7 @@ interface OmnifocusDumpTask {
   dueDate: string | null;
   deferDate: string | null;
   creationDate: string | null;
+  modificationDate: string | null;
   effectiveDueDate: string | null;
   effectiveDeferDate: string | null;
   estimatedMinutes: number | null;
@@ -35,6 +36,7 @@ interface OmnifocusDumpProject {
   dueDate: string | null;
   deferDate: string | null;
   creationDate: string | null;
+  modificationDate: string | null;
   completedByChildren: boolean;
   containsSingletonActions: boolean;
   note: string;
@@ -129,6 +131,7 @@ export async function dumpDatabase(recordId?: string): Promise<OmnifocusDatabase
           dueDate: task.dueDate,
           deferDate: task.deferDate,
           creationDate: task.creationDate,
+          modificationDate: task.modificationDate,
           estimatedMinutes: task.estimatedMinutes ? Number(task.estimatedMinutes) : null,
           tags: task.tags || [],
           tagNames: tagNames,
@@ -164,6 +167,7 @@ export async function dumpDatabase(recordId?: string): Promise<OmnifocusDatabase
           dueDate: project.dueDate,
           deferDate: project.deferDate,
           creationDate: project.creationDate,
+          modificationDate: project.modificationDate,
           completedByChildren: Boolean(project.completedByChildren),
           containsSingletonActions: Boolean(project.containsSingletonActions),
           note: String(project.note || ""),
