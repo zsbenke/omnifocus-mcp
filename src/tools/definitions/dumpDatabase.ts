@@ -82,7 +82,7 @@ function formatCompactReport(database: any, options: { hideCompleted: boolean, h
   // Add legend
   output += `FORMAT LEGEND:
 F: Folder | P: Project | •: Task | 🚩: Flagged
-IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [created:M/D] [modified:M/D] | Duration: (30m) or (2h) | Tags: <tag1,tag2>
+IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [add:M/D] [mod:M/D] [rev:M/D] | Duration: (30m) or (2h) | Tags: <tag1,tag2>
 Status: #next #avail #block #due #over #compl #drop\n\n`;
 
   // Map of folder IDs to folder objects for quick lookup
@@ -166,13 +166,19 @@ Status: #next #avail #block #due #over #compl #drop\n\n`;
     // Add creation date if present
     if (project.creationDate) {
       const createdDateStr = formatCompactDate(project.creationDate);
-      statusInfo += ` [created:${createdDateStr}]`;
+      statusInfo += ` [add:${createdDateStr}]`;
     }
 
     // Add modification date if present
     if (project.modificationDate) {
       const modifiedDateStr = formatCompactDate(project.modificationDate);
-      statusInfo += ` [modified:${modifiedDateStr}]`;
+      statusInfo += ` [mod:${modifiedDateStr}]`;
+    }
+
+    // Add last review date if present
+    if (project.lastReviewDate) {
+      const reviewedDateStr = formatCompactDate(project.lastReviewDate);
+      statusInfo += ` [rev:${reviewedDateStr}]`;
     }
 
     // Add flag if present
@@ -224,11 +230,11 @@ Status: #next #avail #block #due #over #compl #drop\n\n`;
     }
     if (task.creationDate) {
       const createdDateStr = formatCompactDate(task.creationDate);
-      dateInfo += ` [created:${createdDateStr}]`;
+      dateInfo += ` [add:${createdDateStr}]`;
     }
     if (task.modificationDate) {
       const modifiedDateStr = formatCompactDate(task.modificationDate);
-      dateInfo += ` [modified:${modifiedDateStr}]`;
+      dateInfo += ` [mod:${modifiedDateStr}]`;
     }
 
     // Format duration
