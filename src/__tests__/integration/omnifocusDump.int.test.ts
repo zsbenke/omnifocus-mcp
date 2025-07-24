@@ -46,14 +46,14 @@ integration('OmniFocus MCP dump tools (live integration)', () => {
     expect(result.content.length).toBeGreaterThan(0);
 
     // Output the actual MCP tool response
-    console.log('--- MCP Tool Response ---');
+    console.log('--- MCP Tool Response (Full) ---');
     console.log('Content items:', result.content.length);
     result.content.forEach((item, index) => {
       console.log(`\nContent item ${index + 1}:`);
       console.log('Type:', item.type);
       if (item.type === 'text') {
-        console.log('Text preview (first 500 chars):');
-        console.log(item.text.substring(0, 500) + (item.text.length > 500 ? '...' : ''));
+        console.log('Full text content:');
+        console.log(item.text);
       }
     });
   });
@@ -98,14 +98,14 @@ integration('OmniFocus MCP dump tools (live integration)', () => {
     expect(result.content).toBeDefined();
 
     // Output the actual MCP tool response
-    console.log('--- MCP Tool Response ---');
+    console.log('--- MCP Tool Response (Full) ---');
     console.log('Content items:', result.content.length);
     result.content.forEach((item, index) => {
       console.log(`\nContent item ${index + 1}:`);
       console.log('Type:', item.type);
       if (item.type === 'text') {
-        console.log('Text preview (first 300 chars):');
-        console.log(item.text.substring(0, 300) + (item.text.length > 300 ? '...' : ''));
+        console.log('Full text content:');
+        console.log(item.text);
       }
     });
   });
