@@ -13,8 +13,8 @@ export const schema = z.object({
 
 export async function handler(args: z.infer<typeof schema>, extra: RequestHandlerExtra) {
   try {
-    // Get raw database - pass recordId
-    const database = await dumpDatabase(args.recordId);
+    // Get raw database - pass recordId and hideCompleted
+    const database = await dumpDatabase(args.recordId, args.hideCompleted !== false);
 
     // Format as compact report
     const formattedReport = formatCompactReport(database, {
@@ -81,7 +81,8 @@ function formatCompactReport(database: any, options: { hideCompleted: boolean, h
 
   // Add legend
   output += `FORMAT LEGEND:
-F: Folder | P: Project | •: Task | 🚩: Flagged
+F: Folder | P: Project | P✓: Completed Project | P✗: Dropped Project
+•: Task | ✓: Completed Task | ✗: Dropped Task | 🚩: Flagged
 IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [add:M/D] [mod:M/D] [rev:M/D] | Duration: (30m) or (2h) | Tags: <tag1,tag2>\n\n`;
 
   // Map of folder IDs to folder objects for quick lookup
@@ -148,12 +149,18 @@ IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [add:M/D] [mod:M/D] [rev:M/D] | Dur
       return '';
     }
 
+    // Determine project symbol based on status
+    let projectSymbol = 'P:'; // Default for active projects
+    if (project.status === 'Done') {
+      projectSymbol = 'P✓:';
+    } else if (project.status === 'Dropped') {
+      projectSymbol = 'P✗:';
+    }
+
     // Format project status info
     let statusInfo = '';
     if (project.status === 'OnHold') {
       statusInfo = ' [OnHold]';
-    } else if (project.status === 'Dropped') {
-      statusInfo = ' [Dropped]';
     }
 
     // Add due date if present
@@ -186,7 +193,7 @@ IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [add:M/D] [mod:M/D] [rev:M/D] | Dur
     // Add project ID
     const projectId = ` [${project.id}]`;
 
-    let projectOutput = `${indent}P: ${project.name}${flaggedSymbol}${projectId}${statusInfo}\n`;
+    let projectOutput = `${indent}${projectSymbol} ${project.name}${flaggedSymbol}${projectId}${statusInfo}\n`;
 
     // Only process tasks if projectsOnly is false
     if (!projectsOnly) {
@@ -214,6 +221,14 @@ IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [add:M/D] [mod:M/D] [rev:M/D] | Dur
       return '';
     }
 
+    // Determine task symbol based on status
+    let taskSymbol = '•'; // Default for active tasks
+    if (task.completed || task.taskStatus === 'Completed') {
+      taskSymbol = '✓';
+    } else if (task.taskStatus === 'Dropped') {
+      taskSymbol = '✗';
+    }
+    
     // Flag symbol
     const flagSymbol = task.flagged ? '🚩 ' : '';
 
@@ -258,7 +273,7 @@ IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [add:M/D] [mod:M/D] [rev:M/D] | Dur
     // Add task ID
     const taskId = ` [${task.id}]`;
 
-    let taskOutput = `${indent}• ${flagSymbol}${task.name}${taskId}${dateInfo}${durationStr}${tagsStr}\n`;
+    let taskOutput = `${indent}${taskSymbol} ${flagSymbol}${task.name}${taskId}${dateInfo}${durationStr}${tagsStr}\n`;
 
     // Process subtasks
     if (task.childIds && task.childIds.length > 0) {

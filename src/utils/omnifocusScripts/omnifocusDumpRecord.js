@@ -1,7 +1,8 @@
 // OmniJS script to export tasks from a specific record (folder, project, or task) in OmniFocus database
-((recordIdParam) => {
+((recordIdParam, hideCompletedParam) => {
     try {
       const startTime = new Date();
+      const hideCompleted = hideCompletedParam !== false; // Default to true
 
       // Helper function to format dates consistently or return null
       function formatDate(date) {
@@ -124,9 +125,9 @@
         tags: {}
       };
 
-      // Filter active projects based on record type
+      // Filter projects based on record type and hideCompleted setting
       const activeProjects = flattenedProjects.filter(project => {
-        if (project.status === Project.Status.Done || project.status === Project.Status.Dropped) {
+        if (hideCompleted && (project.status === Project.Status.Done || project.status === Project.Status.Dropped)) {
           return false;
         }
         if (recordIdParam) {
@@ -235,9 +236,9 @@
         }
       });
 
-      // Pre-filter active tasks based on record type
+      // Pre-filter tasks based on record type and hideCompleted setting
       const activeTasks = flattenedTasks.filter(task => {
-        if (task.taskStatus === Task.Status.Completed || task.taskStatus === Task.Status.Dropped) {
+        if (hideCompleted && (task.taskStatus === Task.Status.Completed || task.taskStatus === Task.Status.Dropped)) {
           return false;
         }
         if (recordIdParam) {
@@ -330,4 +331,4 @@
       });
     }
   }
-)(__recordIdParam__);
+)(__recordIdParam__, __hideCompletedParam__);

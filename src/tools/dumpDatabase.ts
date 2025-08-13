@@ -72,7 +72,7 @@ interface OmnifocusDumpData {
 }
 
 // Main function to dump the database
-export async function dumpDatabase(recordId?: string): Promise<OmnifocusDatabase> {
+export async function dumpDatabase(recordId?: string, hideCompleted: boolean = true): Promise<OmnifocusDatabase> {
 
   try {
     // Choose script based on whether record is specified
@@ -81,9 +81,13 @@ export async function dumpDatabase(recordId?: string): Promise<OmnifocusDatabase
 
     if (recordId) {
       scriptName = '@omnifocusDumpRecord.js';
-      scriptArgs = { __recordIdParam__: recordId };
+      scriptArgs = { 
+        __recordIdParam__: recordId,
+        __hideCompletedParam__: hideCompleted 
+      };
     } else {
       scriptName = '@omnifocusDump.js';
+      scriptArgs = { __hideCompletedParam__: hideCompleted };
     }
 
     // Execute the OmniFocus script
