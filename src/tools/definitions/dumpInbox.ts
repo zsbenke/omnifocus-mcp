@@ -81,8 +81,7 @@ function formatInboxReport(inboxData: any, options: { hideCompleted: boolean, hi
   // Add legend
   output += `FORMAT LEGEND:
 •: Task | 🚩: Flagged
-IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [add:M/D] [mod:M/D] | Duration: (30m) or (2h) | Tags: <tag1,tag2>
-Status: #next #avail #block #due #over #compl #drop\n\n`;
+IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [add:M/D] [mod:M/D] | Duration: (30m) or (2h) | Tags: <tag1,tag2>\n\n`;
 
 
 
@@ -152,36 +151,11 @@ Status: #next #avail #block #due #over #compl #drop\n\n`;
       tagsStr = ` <${task.tagNames.join(',')}>`;
     }
 
-    // Format status
-    let statusStr = '';
-    switch (task.taskStatus) {
-      case 'Next':
-        statusStr = ' #next';
-        break;
-      case 'Available':
-        statusStr = ' #avail';
-        break;
-      case 'Blocked':
-        statusStr = ' #block';
-        break;
-      case 'DueSoon':
-        statusStr = ' #due';
-        break;
-      case 'Overdue':
-        statusStr = ' #over';
-        break;
-      case 'Completed':
-        statusStr = ' #compl';
-        break;
-      case 'Dropped':
-        statusStr = ' #drop';
-        break;
-    }
 
     // Add task ID
     const taskId = ` [${task.id}]`;
 
-    let taskOutput = `${indent}• ${flagSymbol}${task.name}${taskId}${dateInfo}${durationStr}${tagsStr}${statusStr}\n`;
+    let taskOutput = `${indent}• ${flagSymbol}${task.name}${taskId}${dateInfo}${durationStr}${tagsStr}\n`;
 
     // Process subtasks
     if (task.childIds && task.childIds.length > 0) {

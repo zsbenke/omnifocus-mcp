@@ -74,7 +74,6 @@
             const projectData = {
               id: projectId,
               name: project.name,
-              status: getEnumValue(project.status, projectStatusMap),
               folderID: project.parentFolder ? project.parentFolder.id.primaryKey : null,
               sequential: project.task.sequential || false,
               effectiveDueDate: formatDate(project.effectiveDueDate),
@@ -105,7 +104,6 @@
               id: folderId,
               name: folder.name,
               parentFolderID: folder.parent ? folder.parent.id.primaryKey : null,
-              status: getEnumValue(folder.status, folderStatusMap),
               projects: [],
               subfolders: []
             };
