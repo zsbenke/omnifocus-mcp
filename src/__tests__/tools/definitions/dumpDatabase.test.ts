@@ -34,7 +34,7 @@ describe('dumpDatabase tool with record support', () => {
 
     await handler(args, {} as any);
 
-    expect(mockDumpDatabase).toHaveBeenCalledWith('folder123');
+    expect(mockDumpDatabase).toHaveBeenCalledWith('folder123', true);
   });
 
   it('should call dumpDatabase with recordId when provided', async () => {
@@ -56,7 +56,7 @@ describe('dumpDatabase tool with record support', () => {
 
     await handler(args, {} as any);
 
-    expect(mockDumpDatabase).toHaveBeenCalledWith('task123');
+    expect(mockDumpDatabase).toHaveBeenCalledWith('task123', true);
   });
 
   it('should validate schema correctly with recordId parameter for folder', () => {
