@@ -197,12 +197,21 @@ IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [add:M/D] [mod:M/D] [rev:M/D] | Dur
 
     // Only process tasks if projectsOnly is false
     if (!projectsOnly) {
-      // Process tasks in this project
-      const projectTasks = database.tasks.filter((task: any) =>
-        task.projectId === project.id && (!task.parentId || task.parentId === project.id)
-      );
+      // Find the root task of the project (task with same ID as project)
+      const rootTask = database.tasks.find((task: any) => task.id === project.id);
+      
+      if (rootTask && rootTask.childIds && rootTask.childIds.length > 0) {
+        // If root task exists and has children, process only its children (skip the root task itself)
+        const childTasks = database.tasks.filter((t: any) => rootTask.childIds.includes(t.id));
+        for (const childTask of childTasks) {
+          projectOutput += processTask(childTask, level + 1);
+        }
+      } else if (!rootTask) {
+        // If no root task, process direct children of the project
+        const projectTasks = database.tasks.filter((task: any) =>
+          task.projectId === project.id && task.parentId === project.id
+        );
 
-      if (projectTasks.length > 0) {
         for (const task of projectTasks) {
           projectOutput += processTask(task, level + 1);
         }
