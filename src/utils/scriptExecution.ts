@@ -94,20 +94,20 @@ export async function executeOmniFocusScript(scriptPath: string, args?: any): Pr
     
     // Create a JXA script that will execute our OmniJS script in OmniFocus
     const jxaScript = `
-    function run() {
-      try {
-        const app = Application('OmniFocus');
-        app.includeStandardAdditions = true;
-        
-        // Run the OmniJS script in OmniFocus and capture the output
-        const result = app.evaluateJavascript(\`${escapedScript}\`);
-        
-        // Return the result
-        return result;
-      } catch (e) {
-        return JSON.stringify({ error: e.message });
-      }
-    }
+(() => {
+  try {
+    const app = Application('OmniFocus');
+    app.includeStandardAdditions = true;
+
+    // Run the OmniJS script in OmniFocus and capture the output
+    const result = app.evaluateJavascript(\`${escapedScript}\`);
+
+    // Return the result
+    return result;
+  } catch (e) {
+    return JSON.stringify({ error: e.message });
+  }
+})();
     `;
     
     // Write the JXA script to the temporary file
