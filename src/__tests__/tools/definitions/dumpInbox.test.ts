@@ -59,6 +59,46 @@ describe('dumpInbox tool', () => {
     expect(result.content[0].text).toContain('Test inbox task');
   });
 
+  it('should format date fields with year and time', async () => {
+    const mockInboxData = {
+      exportDate: '2024-01-01T00:00:00.000Z',
+      tasks: [
+        {
+          id: 'task123',
+          name: 'Time-sensitive inbox task',
+          taskStatus: 'Available',
+          flagged: false,
+          dueDate: '2027-01-31T14:00:00.000Z',
+          deferDate: '2026-06-01T09:00:00.000Z',
+          creationDate: '2025-02-25T15:45:00.000Z',
+          modificationDate: '2025-02-26T16:30:00.000Z',
+          estimatedMinutes: 30,
+          tagNames: [],
+          parentId: null,
+          childIds: [],
+          inInbox: true
+        }
+      ],
+      tags: {}
+    };
+
+    mockDumpInbox.mockResolvedValue(mockInboxData);
+
+    const args = {
+      hideCompleted: true,
+      hideRecurringDuplicates: true,
+      hideDeferred: false
+    };
+
+    const result = await handler(args, {} as any);
+    const output = result.content[0].text;
+
+    expect(output).toMatch(/\[DUE:\d{4}-\d{2}-\d{2} \d{2}:\d{2}\]/);
+    expect(output).toMatch(/\[defer:\d{4}-\d{2}-\d{2} \d{2}:\d{2}\]/);
+    expect(output).toMatch(/\[add:\d{4}-\d{2}-\d{2} \d{2}:\d{2}\]/);
+    expect(output).toMatch(/\[mod:\d{4}-\d{2}-\d{2} \d{2}:\d{2}\]/);
+  });
+
   it('should handle empty inbox', async () => {
     const mockInboxData = {
       exportDate: '2024-01-01T00:00:00.000Z',

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { writeFileSync } from 'fs';
 import { dumpDatabase } from '../dumpDatabase.js';
 import { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol.js';
+import { formatDateTime } from './formatDateTime.js';
 
 export const schema = z.object({
   hideCompleted: z.boolean().optional().describe("Set to false to show completed and dropped tasks (default: true)"),
@@ -61,14 +62,6 @@ export async function handler(args: z.infer<typeof schema>, extra: RequestHandle
   }
 }
 
-// Function to format date in compact format (M/D)
-function formatCompactDate(isoDate: string | null): string {
-  if (!isoDate) return '';
-
-  const date = new Date(isoDate);
-  return `${date.getMonth() + 1}/${date.getDate()}`;
-}
-
 // Function to format the database in the compact report format
 function formatCompactReport(database: any, options: { hideCompleted: boolean, hideRecurringDuplicates: boolean, projectsOnly: boolean }): string {
   const { hideCompleted, hideRecurringDuplicates, projectsOnly } = options;
@@ -83,7 +76,7 @@ function formatCompactReport(database: any, options: { hideCompleted: boolean, h
   output += `FORMAT LEGEND:
 F: Folder | P: Project | P✓: Completed Project | P✗: Dropped Project
 •: Task | ✓: Completed Task | ✗: Dropped Task | 🚩: Flagged
-IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [add:M/D] [mod:M/D] [rev:M/D] | Duration: (30m) or (2h) | Tags: <tag1,tag2>\n\n`;
+IDs: [abc123] | Dates: [DUE:YYYY-MM-DD HH:mm] [defer:YYYY-MM-DD HH:mm] [add:YYYY-MM-DD HH:mm] [mod:YYYY-MM-DD HH:mm] [rev:YYYY-MM-DD HH:mm] | Duration: (30m) or (2h) | Tags: <tag1,tag2>\n\n`;
 
   // Map of folder IDs to folder objects for quick lookup
   const folderMap = new Map();
@@ -165,25 +158,25 @@ IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [add:M/D] [mod:M/D] [rev:M/D] | Dur
 
     // Add due date if present
     if (project.dueDate) {
-      const dueDateStr = formatCompactDate(project.dueDate);
+      const dueDateStr = formatDateTime(project.dueDate);
       statusInfo += statusInfo ? ` [DUE:${dueDateStr}]` : ` [DUE:${dueDateStr}]`;
     }
 
     // Add creation date if present
     if (project.creationDate) {
-      const createdDateStr = formatCompactDate(project.creationDate);
+      const createdDateStr = formatDateTime(project.creationDate);
       statusInfo += ` [add:${createdDateStr}]`;
     }
 
     // Add modification date if present
     if (project.modificationDate) {
-      const modifiedDateStr = formatCompactDate(project.modificationDate);
+      const modifiedDateStr = formatDateTime(project.modificationDate);
       statusInfo += ` [mod:${modifiedDateStr}]`;
     }
 
     // Add last review date if present
     if (project.lastReviewDate) {
-      const reviewedDateStr = formatCompactDate(project.lastReviewDate);
+      const reviewedDateStr = formatDateTime(project.lastReviewDate);
       statusInfo += ` [rev:${reviewedDateStr}]`;
     }
 
@@ -244,19 +237,19 @@ IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [add:M/D] [mod:M/D] [rev:M/D] | Dur
     // Format dates
     let dateInfo = '';
     if (task.dueDate) {
-      const dueDateStr = formatCompactDate(task.dueDate);
+      const dueDateStr = formatDateTime(task.dueDate);
       dateInfo += ` [DUE:${dueDateStr}]`;
     }
     if (task.deferDate) {
-      const deferDateStr = formatCompactDate(task.deferDate);
+      const deferDateStr = formatDateTime(task.deferDate);
       dateInfo += ` [defer:${deferDateStr}]`;
     }
     if (task.creationDate) {
-      const createdDateStr = formatCompactDate(task.creationDate);
+      const createdDateStr = formatDateTime(task.creationDate);
       dateInfo += ` [add:${createdDateStr}]`;
     }
     if (task.modificationDate) {
-      const modifiedDateStr = formatCompactDate(task.modificationDate);
+      const modifiedDateStr = formatDateTime(task.modificationDate);
       dateInfo += ` [mod:${modifiedDateStr}]`;
     }
 
@@ -334,4 +327,3 @@ IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [add:M/D] [mod:M/D] [rev:M/D] | Dur
 
   return output;
 }
-

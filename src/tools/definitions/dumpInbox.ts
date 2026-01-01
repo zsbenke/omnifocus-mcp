@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { writeFileSync } from 'fs';
 import { dumpInbox } from '../primitives/dumpInbox.js';
 import { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol.js';
+import { formatDateTime } from './formatDateTime.js';
 
 export const schema = z.object({
   hideCompleted: z.boolean().optional().describe("Set to false to show completed and dropped tasks (default: true)"),
@@ -60,14 +61,6 @@ export async function handler(args: z.infer<typeof schema>, extra: RequestHandle
   }
 }
 
-// Function to format date in compact format (M/D)
-function formatCompactDate(isoDate: string | null): string {
-  if (!isoDate) return '';
-
-  const date = new Date(isoDate);
-  return `${date.getMonth() + 1}/${date.getDate()}`;
-}
-
 // Function to format the inbox in the compact report format
 function formatInboxReport(inboxData: any, options: { hideCompleted: boolean, hideRecurringDuplicates: boolean, hideDeferred: boolean }): string {
   const { hideCompleted, hideRecurringDuplicates, hideDeferred } = options;
@@ -81,7 +74,7 @@ function formatInboxReport(inboxData: any, options: { hideCompleted: boolean, hi
   // Add legend
   output += `FORMAT LEGEND:
 •: Task | 🚩: Flagged
-IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [add:M/D] [mod:M/D] | Duration: (30m) or (2h) | Tags: <tag1,tag2>\n\n`;
+IDs: [abc123] | Dates: [DUE:YYYY-MM-DD HH:mm] [defer:YYYY-MM-DD HH:mm] [add:YYYY-MM-DD HH:mm] [mod:YYYY-MM-DD HH:mm] | Duration: (30m) or (2h) | Tags: <tag1,tag2>\n\n`;
 
 
 
@@ -117,19 +110,19 @@ IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [add:M/D] [mod:M/D] | Duration: (30
     // Format dates
     let dateInfo = '';
     if (task.dueDate) {
-      const dueDateStr = formatCompactDate(task.dueDate);
+      const dueDateStr = formatDateTime(task.dueDate);
       dateInfo += ` [DUE:${dueDateStr}]`;
     }
     if (task.deferDate) {
-      const deferDateStr = formatCompactDate(task.deferDate);
+      const deferDateStr = formatDateTime(task.deferDate);
       dateInfo += ` [defer:${deferDateStr}]`;
     }
     if (task.creationDate) {
-      const createdDateStr = formatCompactDate(task.creationDate);
+      const createdDateStr = formatDateTime(task.creationDate);
       dateInfo += ` [add:${createdDateStr}]`;
     }
     if (task.modificationDate) {
-      const modifiedDateStr = formatCompactDate(task.modificationDate);
+      const modifiedDateStr = formatDateTime(task.modificationDate);
       dateInfo += ` [mod:${modifiedDateStr}]`;
     }
 
@@ -176,4 +169,3 @@ IDs: [abc123] | Dates: [DUE:M/D] [defer:M/D] [add:M/D] [mod:M/D] | Duration: (30
 
   return output;
 }
-
