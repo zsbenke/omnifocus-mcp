@@ -100,6 +100,60 @@ describe('dumpDatabase tool with record support', () => {
     expect(output).toMatch(/\[rev:\d{4}-\d{2}-\d{2} \d{2}:\d{2}\]/);
   });
 
+  it('should format date fields without time when time component is missing', async () => {
+    const localMidnight = new Date(2026, 0, 2, 0, 0, 0, 0).toISOString();
+    const mockDatabase = {
+      exportDate: '2024-01-01T00:00:00.000Z',
+      tasks: [
+        {
+          id: 'proj1',
+          name: 'Project Root Task',
+          taskStatus: 'Available',
+          completed: false,
+          flagged: false,
+          childIds: ['task1']
+        },
+        {
+          id: 'task1',
+          name: 'Date-only task',
+          taskStatus: 'Available',
+          completed: false,
+          flagged: false,
+          dueDate: localMidnight,
+          estimatedMinutes: 30,
+          tagNames: [],
+          childIds: [],
+          projectId: 'proj1',
+          parentId: 'proj1'
+        }
+      ],
+      projects: {
+        proj1: {
+          id: 'proj1',
+          name: 'Project One',
+          status: 'Active',
+          flagged: false
+        }
+      },
+      folders: {},
+      tags: {}
+    };
+
+    mockDumpDatabase.mockResolvedValue(mockDatabase);
+
+    const args = {
+      hideCompleted: true,
+      hideRecurringDuplicates: true,
+      recordId: 'proj1'
+    };
+
+    const result = await handler(args, {} as any);
+    const output = result.content[0].text;
+
+    expect(output).toContain('[DUE:2026-01-02]');
+    expect(output).not.toContain('2026-01-02 00:00');
+  });
+
   it('should call dumpDatabase with recordId when provided', async () => {
     const mockDatabase = {
       exportDate: '2024-01-01T00:00:00.000Z',

@@ -99,6 +99,42 @@ describe('dumpInbox tool', () => {
     expect(output).toMatch(/\[mod:\d{4}-\d{2}-\d{2} \d{2}:\d{2}\]/);
   });
 
+  it('should format date fields without time when time component is missing', async () => {
+    const localMidnight = new Date(2026, 0, 2, 0, 0, 0, 0).toISOString();
+    const mockInboxData = {
+      exportDate: '2024-01-01T00:00:00.000Z',
+      tasks: [
+        {
+          id: 'task123',
+          name: 'Date-only inbox task',
+          taskStatus: 'Available',
+          flagged: false,
+          dueDate: localMidnight,
+          estimatedMinutes: 30,
+          tagNames: [],
+          parentId: null,
+          childIds: [],
+          inInbox: true
+        }
+      ],
+      tags: {}
+    };
+
+    mockDumpInbox.mockResolvedValue(mockInboxData);
+
+    const args = {
+      hideCompleted: true,
+      hideRecurringDuplicates: true,
+      hideDeferred: false
+    };
+
+    const result = await handler(args, {} as any);
+    const output = result.content[0].text;
+
+    expect(output).toContain('[DUE:2026-01-02]');
+    expect(output).not.toContain('2026-01-02 00:00');
+  });
+
   it('should handle empty inbox', async () => {
     const mockInboxData = {
       exportDate: '2024-01-01T00:00:00.000Z',

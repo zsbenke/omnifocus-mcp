@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { getTaskDetails, GetTaskDetailsParams } from '../primitives/getTaskDetails.js';
 import { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol.js';
+import { formatDateTime } from './formatDateTime.js';
 
 export const schema = z.object({
   taskId: z.string().optional().describe("The ID of the task to get details for"),
@@ -28,19 +29,19 @@ export async function handler(args: z.infer<typeof schema>, extra: RequestHandle
 
       // Dates
       if (task.dueDate) {
-        output += `**Due Date:** ${new Date(task.dueDate).toLocaleDateString()}\n`;
+        output += `**Due Date:** ${formatDateTime(task.dueDate)}\n`;
       }
       if (task.deferDate) {
-        output += `**Defer Date:** ${new Date(task.deferDate).toLocaleDateString()}\n`;
+        output += `**Defer Date:** ${formatDateTime(task.deferDate)}\n`;
       }
       if (task.creationDate) {
-        output += `**Created:** ${new Date(task.creationDate).toLocaleDateString()}\n`;
+        output += `**Created:** ${formatDateTime(task.creationDate)}\n`;
       }
       if (task.modificationDate) {
-        output += `**Modified:** ${new Date(task.modificationDate).toLocaleDateString()}\n`;
+        output += `**Modified:** ${formatDateTime(task.modificationDate)}\n`;
       }
       if (task.completionDate) {
-        output += `**Completed:** ${new Date(task.completionDate).toLocaleDateString()}\n`;
+        output += `**Completed:** ${formatDateTime(task.completionDate)}\n`;
       }
 
       // Time estimate

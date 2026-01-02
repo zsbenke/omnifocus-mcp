@@ -76,7 +76,7 @@ function formatCompactReport(database: any, options: { hideCompleted: boolean, h
   output += `FORMAT LEGEND:
 F: Folder | P: Project | P✓: Completed Project | P✗: Dropped Project
 •: Task | ✓: Completed Task | ✗: Dropped Task | 🚩: Flagged
-IDs: [abc123] | Dates: [DUE:YYYY-MM-DD HH:mm] [defer:YYYY-MM-DD HH:mm] [add:YYYY-MM-DD HH:mm] [mod:YYYY-MM-DD HH:mm] [rev:YYYY-MM-DD HH:mm] | Duration: (30m) or (2h) | Tags: <tag1,tag2>\n\n`;
+IDs: [abc123] | Dates: [DUE:YYYY-MM-DD or YYYY-MM-DD HH:mm] [defer:YYYY-MM-DD or YYYY-MM-DD HH:mm] [add:YYYY-MM-DD or YYYY-MM-DD HH:mm] [mod:YYYY-MM-DD or YYYY-MM-DD HH:mm] [rev:YYYY-MM-DD or YYYY-MM-DD HH:mm] | Duration: (30m) or (2h) | Tags: <tag1,tag2>\n\n`;
 
   // Map of folder IDs to folder objects for quick lookup
   const folderMap = new Map();
