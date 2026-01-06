@@ -14,6 +14,7 @@ import * as batchAddItemsTool from './tools/definitions/batchAddItems.js';
 import * as batchRemoveItemsTool from './tools/definitions/batchRemoveItems.js';
 import * as getTaskDetailsTool from './tools/definitions/getTaskDetails.js';
 import * as listFoldersTool from './tools/definitions/listFolders.js';
+import * as exportTaskpaperTool from './tools/definitions/exportTaskpaper.js';
 
 // Create an MCP server
 const server = new McpServer({
@@ -90,6 +91,13 @@ server.tool(
   "List all folders in OmniFocus with their hierarchy and statistics",
   listFoldersTool.schema.shape,
   listFoldersTool.handler
+);
+
+server.tool(
+  "export_taskpaper",
+  "Export OmniFocus data in TaskPaper format. Can export a specific project, folder, or task (by ID), or the entire database.",
+  exportTaskpaperTool.schema.shape,
+  exportTaskpaperTool.handler
 );
 
 // Start the MCP server
