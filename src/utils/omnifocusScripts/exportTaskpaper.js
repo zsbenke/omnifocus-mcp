@@ -83,8 +83,8 @@
         function processTasks(tasks, indent, hideCompleted) {
             let output = '';
             tasks.forEach(task => {
-                // Skip completed if hideCompleted is true
-                if (hideCompleted && task.completed) {
+                // Skip completed or dropped if hideCompleted is true
+                if (hideCompleted && (task.completed || task.taskStatus === Task.Status.Dropped)) {
                     return;
                 }
 
@@ -163,7 +163,7 @@
 
             // Process projects in folder
             folder.projects.forEach(project => {
-                if (hideCompleted && project.status === Project.Status.Done) {
+                if (hideCompleted && (project.status === Project.Status.Done || project.status === Project.Status.Dropped)) {
                     return;
                 }
                 output += projectToTaskPaper(project, hideCompleted) + '\n';
@@ -252,7 +252,7 @@
             });
 
             library.projects.forEach(project => {
-                if (hideCompleted && project.status === Project.Status.Done) {
+                if (hideCompleted && (project.status === Project.Status.Done || project.status === Project.Status.Dropped)) {
                     return;
                 }
                 taskpaperOutput += projectToTaskPaper(project, hideCompleted) + '\n';
