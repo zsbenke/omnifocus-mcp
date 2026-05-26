@@ -203,9 +203,9 @@ function generateAppleScript(params: EditItemParams): string {
           end try
           
           if destProject is not missing value then
-            -- Set task assigned container to project
-            set assigned container of foundItem to destProject
-            set end of changedProperties to "assigned to project"
+            -- Physically move the task into the destination project
+            move foundItem to end of tasks of destProject
+            set end of changedProperties to "moved to project"
           else
             -- Project not found
             return "{\\\"success\\\":false,\\\"error\\\":\\\"Project not found\\\"}"
